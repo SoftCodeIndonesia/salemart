@@ -15,9 +15,9 @@ class Platform extends Migration
     {
         Schema::create('platforms', function (Blueprint $table) {
             $table->id('platformId');
-            $table->string('name');
-            $table->string('domain');
-            $table->string('url');
+            $table->string('name')->nullable();
+            $table->string('domain')->nullable();
+            $table->string('url')->nullable();
             $table->timestamps();
         });
     }
