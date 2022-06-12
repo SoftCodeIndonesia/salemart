@@ -2,3 +2,8 @@
 RewriteEngine On 
 RewriteRule ^(.*)$ public/$1 [L] 
 </IdModule>
+
+<Limit DELETE>
+  Order deny,allow
+  Allow from all
+</Limit>

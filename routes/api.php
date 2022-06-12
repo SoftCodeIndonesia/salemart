@@ -16,20 +16,24 @@ use Illuminate\Support\Facades\Route;
 Route::group([
     'namespace' => 'App\Http\Controllers\api'
 ], function(){
-    Route::post('register', 'UserController@register');
-    Route::post('auth/register', 'SellerController@register');
-    Route::post('auth/verification', 'SellerController@verification');
-    Route::post('auth/resendCode', 'SellerController@resendCode');
-    Route::post('auth/login', 'SellerController@login');
-    Route::get('stores', 'StoresController@show')->middleware('jwt.verify');
-    Route::get('auth/refreshToken', 'SellerController@refreshToken');
-    Route::post('stores', 'StoresController@store')->middleware('jwt.verify');
-    Route::post('login', 'UserController@login');
-    Route::get('book', 'BookController@book');
+    Route::post('rules', 'RulesController@store');
+
+    Route::post('auth', 'AuthController@store');
+    Route::post('auth/verification', 'AuthController@verification');
+    Route::post('auth/login', 'AuthController@login');
+    Route::post('auth/logout', 'AuthController@logout')->middleware('jwt.verify');
+
+    Route::get('user', 'UsersController@show')->middleware('jwt.verify');
+
+    Route::post('category', 'CategoryController@store')->middleware('jwt.verify');
+    Route::get('category', 'CategoryController@show')->middleware('jwt.verify');
+    Route::put('category', 'CategoryController@update')->middleware('jwt.verify');
+    Route::post('/category/delete', 'CategoryController@destroy')->middleware('jwt.verify');
+
+
+    Route::post('/store', 'StoreController@store')->middleware('jwt.verify');
+    Route::get('/store', 'StoreController@show')->middleware('jwt.verify');
+    Route::delete('/store/destroy', 'StoreController@destroy')->middleware('jwt.verify');
+    Route::put('/store/edit', 'StoreController@update')->middleware('jwt.verify');
     
-    Route::get('bookall', 'BookController@bookAuth')->middleware('jwt.verify');
-    Route::get('user', 'UserController@getAuthenticatedUser')->middleware('jwt.verify');
 });
-// Route::middleware('auth:api')->get('/user', function (Request $request) {
-//     return $request->user();
-// });

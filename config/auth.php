@@ -14,7 +14,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'web',
+        'guard' => 'api',
         'passwords' => 'users',
     ],
 
@@ -52,6 +52,11 @@ return [
             'provider' => 'seller',
             'hash' => false,
         ],
+        'owner-api' => [
+            'driver' => 'jwt',
+            'provider' => 'owner',
+            'hash' => false,
+        ],
     ],
 
     /*
@@ -74,12 +79,17 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\User::class,
+            'model' => App\Models\LoginModel::class,
         ],
 
         'seller' => [
             'driver' => 'eloquent',
             'model' => App\Models\Seller::class,
+        ],
+
+        'owner' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\OwnerModel::class,
         ],
 
         // 'users' => [
