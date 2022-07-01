@@ -22,6 +22,7 @@ class RulesModel extends Model
 
 
     public function set_data($data = []){
+        
         $data = (object) $data;
         if(key_exists('rules_id', $data))
             $this->rules_id = (string) $data->rules_id;
@@ -76,5 +77,20 @@ class RulesModel extends Model
         $data['rules_id'] = Hash::make($key);
 
         $this->set_data((object) $data);
+    }
+
+
+    public function findAll(){
+        $rules_all = DB::table($this->table)->select("*")->get();
+
+        $rules = [];
+
+        foreach ($rules_all as $key => $value) {
+            
+            $this->set_data($value);
+            array_push($rules, $this->get_data());
+        }
+
+        return $rules;
     }
 }

@@ -37,9 +37,13 @@ class RulesController extends Controller
      * @param  \App\Models\RulesModel  $rulesModel
      * @return \Illuminate\Http\Response
      */
-    public function show(RulesModel $rulesModel)
+    public function show()
     {
-        //
+        $rulesModel = new RulesModel;
+
+        $rules = $rulesModel->findAll();
+
+        return response_ok($rules , 'successfully retrieving data!!');
     }
 
     /**

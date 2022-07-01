@@ -17,6 +17,7 @@ Route::group([
     'namespace' => 'App\Http\Controllers\api'
 ], function(){
     Route::post('rules', 'RulesController@store');
+    Route::get('rules', 'RulesController@show');
 
     Route::post('auth', 'AuthController@store');
     Route::post('auth/verification', 'AuthController@verification');
