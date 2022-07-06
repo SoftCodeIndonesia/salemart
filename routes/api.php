@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::group([
     'namespace' => 'App\Http\Controllers\api'
 ], function(){
-    Route::post('rules', 'RulesController@store');
+    Route::post('rules', 'RulesController@store')->middleware('jwt.verify');
     Route::get('rules', 'RulesController@show');
 
     Route::post('auth', 'AuthController@store');

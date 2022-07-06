@@ -190,7 +190,12 @@ class UsersModel extends Authenticatable implements JWTSubject
        foreach ($this->user as $key => $value) {
            
             $rulesData = $rules->findOne(['rules_id' => $value->attributes['rules_id']]);
-            $value->attributes['rules'] = $rulesData;
+
+            if($rulesData){
+                $value->attributes['rules'] = $rulesData;
+            }
+
+            
        }
        return $this;
     }

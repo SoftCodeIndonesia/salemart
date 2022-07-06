@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use App\Models\RulesModel;
 use Illuminate\Http\Request;
+use App\Http\Requests\Rules_store;
 
 class RulesController extends Controller
 {
@@ -24,11 +25,19 @@ class RulesController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Rules_store $request)
     {
         $rulesModel = new RulesModel;
 
-        $rulesModel->create();
+        $rulesModel->set_data($request->all());
+
+        $rulesInserted = $rulesModel->create();
+
+        if($rulesInserted){
+            return response_ok($rulesInserted , 'successfully inserting data!!');
+        }else{
+            return bad_request('something when wrong!!');
+        }
     }
 
     /**

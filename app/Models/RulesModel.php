@@ -17,7 +17,9 @@ class RulesModel extends Model
     public $timestamps = false;
 
     protected $rules_id;
+    protected $parent_id;
     protected $name;
+    protected $description;
     protected $created_at;
 
 
@@ -28,6 +30,10 @@ class RulesModel extends Model
             $this->rules_id = (string) $data->rules_id;
         if(key_exists('name', $data))
             $this->name = $data->name;
+        if(key_exists('parent_id', $data))
+            $this->parent_id = $data->parent_id;
+        if(key_exists('description', $data))
+            $this->description = $data->description;
         if(key_exists('created_at', $data)){
             $this->created_at = (int) $data->created_at;
         }else{
@@ -38,7 +44,12 @@ class RulesModel extends Model
     public function findOne($cond)
     {
         $data = RulesModel::where($cond)->get()->first();
-        $this->set_data($data->attributes);
+
+        if($data){
+            $this->set_data($data->attributes);
+        }
+
+        
         return $this->get_data();
     }
 
@@ -57,7 +68,9 @@ class RulesModel extends Model
         $id = DB::table($this->table)->insertGetId(
                 [
                 'rules_id' => $this->rules_id,
+                'parent_id' => $this->parent_id ?? $this->rules_id,
                 'name' => $this->name,
+                'description' => $this->description,
                 'created_at' => $this->created_at
             ]
         );

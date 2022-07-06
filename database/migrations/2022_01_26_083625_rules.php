@@ -15,7 +15,9 @@ class Rules extends Migration
     {
         Schema::create('rules', function (Blueprint $table) {
             $table->string('rules_id', 255)->primary();
+            $table->string('parent_id');
             $table->string('name');
+            $table->string('description');
             $table->bigInteger('created_at');
         });
     }

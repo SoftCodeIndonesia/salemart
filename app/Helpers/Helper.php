@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\App;
             return response()->json([
                 'status' => false,
                 'message' => $message,
-            ], 400);
+            ], 200);
         }
     }
     if(!function_exists('response_ok')){
