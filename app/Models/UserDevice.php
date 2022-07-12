@@ -15,7 +15,7 @@ class UserDevice extends Model
     // protected $keyType = 'string';
     public $timestamps = false;
 
-    protected $nullable = ['lang'];
+    protected $nullable = ['lang','fcm_token'];
 
     // protected $user_devices_id;
     // protected $user_id;
@@ -43,10 +43,8 @@ class UserDevice extends Model
             $this->version = (int) $data->version;
         if(key_exists('name', $data))
             $this->name = $data->name;
-        if(key_exists('identifier', $data))
-            $this->identifier = $data->identifier;
-        if(key_exists('fcm_token', $data))
-            $this->fcm_token = $data->fcm_token;
+        $this->identifier = $data->identifier ?? '';
+        $this->fcm_token = $data->fcm_token ?? ''; 
         if(key_exists('last_updated', $data))
             $this->last_updated = (int) $data->last_updated;
         

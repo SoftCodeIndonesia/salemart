@@ -149,6 +149,8 @@ class UsersModel extends Authenticatable implements JWTSubject
         
         $dataUser = $this->get_attribute();
         unset($dataUser->rules);
+        unset($dataUser->user_info);
+        unset($dataUser->device);
         $dataUser->rules_id = $this->rules_id;
         $dataUser->password = $this->password;
         
@@ -190,7 +192,7 @@ class UsersModel extends Authenticatable implements JWTSubject
        foreach ($this->user as $key => $value) {
            
             $rulesData = $rules->findOne(['rules_id' => $value->attributes['rules_id']]);
-
+            
             if($rulesData){
                 $value->attributes['rules'] = $rulesData;
             }
@@ -204,8 +206,12 @@ class UsersModel extends Authenticatable implements JWTSubject
     {
        
         foreach ($this->user as $key => $value) {
+            
             $user_info = UserInfoModel::where('user_id', $value->attributes['user_id'])->get()->first();
-            $value->attributes['user_info'] = $user_info->attributes;
+            if($user_info){
+                $value->attributes['user_info'] = $user_info;
+            }
+            
        }
 
       
@@ -216,7 +222,10 @@ class UsersModel extends Authenticatable implements JWTSubject
        
         foreach ($this->user as $key => $value) {
             $device = UserDevice::where('user_id', $value->attributes['user_id'])->get()->first();
-            $value->attributes['device'] = $device->attributes;
+            if($device){
+                $value->attributes['device'] = $device;
+            }
+            
        }
 
       

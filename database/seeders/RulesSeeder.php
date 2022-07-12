@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\RulesModel;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -15,7 +16,8 @@ class RulesSeeder extends Seeder
      */
     public function run()
     {
-        $rules = ['developer', 'owner'];
+        RulesModel::truncate();
+        $rules = ['developer'];
         foreach ($rules as $key => $value) {
             $key = time() . $key;
 
@@ -23,6 +25,8 @@ class RulesSeeder extends Seeder
 
             DB::table('rules')->insert([
                 'rules_id' => $id,
+                'parent_id' => '',
+                'description' => 'rules for developer',
                 'name' => $value,
                 'created_at' => time(),
             ]);

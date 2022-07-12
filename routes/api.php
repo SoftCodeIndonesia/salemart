@@ -17,7 +17,7 @@ Route::group([
     'namespace' => 'App\Http\Controllers\api'
 ], function(){
     Route::post('rules', 'RulesController@store')->middleware('jwt.verify');
-    Route::get('rules', 'RulesController@show');
+    Route::get('rules', 'RulesController@show')->middleware('jwt.verify');
 
     Route::post('auth', 'AuthController@store');
     Route::post('auth/verification', 'AuthController@verification');
@@ -36,5 +36,8 @@ Route::group([
     Route::get('/store', 'StoreController@show')->middleware('jwt.verify');
     Route::delete('/store/destroy', 'StoreController@destroy')->middleware('jwt.verify');
     Route::put('/store/edit', 'StoreController@update')->middleware('jwt.verify');
+
+    Route::post('/feature', 'FeatureController@store')->middleware('jwt.verify');
+    Route::get('/feature', 'FeatureController@show')->middleware('jwt.verify');
     
 });

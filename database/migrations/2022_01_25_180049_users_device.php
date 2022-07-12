@@ -18,7 +18,7 @@ class UsersDevice extends Migration
             $table->string('user_id');
             $table->string('lang');
             $table->string('platform');
-            $table->integer('version');
+            $table->float('version');
             $table->string('name');
             $table->string('identifier');
             $table->string('fcm_token');
