@@ -68,7 +68,6 @@ class RulesModel extends Model
         $id = DB::table($this->table)->insertGetId(
                 [
                 'rules_id' => $this->rules_id,
-                'parent_id' => $this->parent_id ?? $this->rules_id,
                 'name' => $this->name,
                 'description' => $this->description,
                 'created_at' => $this->created_at

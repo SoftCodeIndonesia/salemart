@@ -6,6 +6,7 @@ use App\Models\RulesModel;
 use App\Models\UserDevice;
 use App\Models\UsersModel;
 use App\Models\UserInfoModel;
+use App\Models\StakeholderFeat;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Hash;
@@ -24,7 +25,7 @@ class UsersModel extends Authenticatable implements JWTSubject
 
     protected $table = 'users';
     protected $primaryKey = 'user_id';
-    // protected $keyType = 'string';
+    protected $keyType = 'string';
     public $timestamps = false;
 
     protected $fillable = [
@@ -57,6 +58,7 @@ class UsersModel extends Authenticatable implements JWTSubject
     protected $rules;
     protected $user_info;
     protected $device;
+    protected $features;
 
     public function generate_id()
     {
@@ -74,55 +76,65 @@ class UsersModel extends Authenticatable implements JWTSubject
     {
         
         $data = (object) $data;
-        if(key_exists('user_id', $data))
+
+      
+
+        if(property_exists($data, 'user_id'))
             $this->user_id = $data->user_id;
-        if(key_exists('rules_id', $data))
+        if(property_exists($data, 'rules_id')){
+           
             $this->rules_id = $data->rules_id;
-        if(key_exists('username', $data))
+            
+        }
+        if(property_exists($data, 'username'))
             $this->username = $data->username;
-        if(key_exists('avatar_url', $data))
+        if(property_exists($data, 'avatar_url'))
             $this->avatar_url = $data->avatar_url;
-        if(key_exists('email', $data))
+        if(property_exists($data, 'email'))
             $this->email = $data->email;
-        if(key_exists('email_is_verify', $data))
+        if(property_exists($data, 'email_is_verify'))
             $this->email_is_verify = (int) $this->email_is_verify;
-        if(key_exists('email_verify_at', $data))
+        if(property_exists($data, 'email_verify_at'))
             $this->email_verify_at = (int) $this->email_verify_at ?? 0;
-        if(key_exists('email_verify_id', $data))
+        if(property_exists($data, 'email_verify_id'))
             $this->email_verify_id = $data->email_verify_id;
-        if(key_exists('email_verify_id_expired', $data))
+        if(property_exists($data, 'email_verify_id_expired'))
             $this->email_verify_id_expired = (int) $data->email_verify_id_expired;
-        if(key_exists('password', $data))
+        if(property_exists($data, 'password'))
             $this->password = Hash::make($data->password);
-        if(key_exists('country_code', $data))
+        if(property_exists($data, 'country_code'))
             $this->country_code = $data->country_code;
-        if(key_exists('country', $data))
+        if(property_exists($data, 'country'))
             $this->country = $data->country;
-        if(key_exists('is_actived', $data))
+        if(property_exists($data, 'is_actived'))
             $this->is_actived = (int) $data->is_actived;
-        if(key_exists('register_at', $data)){
+        if(property_exists($data, 'register_at')){
             $this->register_at = (int) $data->register_at;
         }else{
             $this->register_at = time();
         }
-        if(key_exists('rules', $data)){
+        if(property_exists($data, 'rules')){
             $rules = new RulesModel;
             $rules->set_data($data->rules);
             $this->rules = $rules->get_data();
         }
-        if(key_exists('user_info', $data)){
+        if(property_exists($data, 'user_info')){
             $info = new UserInfoModel;
             $info->set_data($data->user_info);
             $this->user_info = $info->get_attribute();
            
         }
-        if(key_exists('device', $data)){
+        if(property_exists($data, 'device')){
             $deviceModel = new UserDevice;
             $deviceModel->set_data($data->device);
             $this->device = $deviceModel->get_attribute();
            
         }
-            
+
+        if(property_exists($data, 'features')){
+            $this->features = $data->features;
+        }
+        
     }
 
     public function get_attribute(){
@@ -139,8 +151,10 @@ class UsersModel extends Authenticatable implements JWTSubject
         $data['is_actived'] = $this->is_actived;
         $data['register_at'] = $this->register_at;
         $data['rules'] = $this->rules ?? null;
+        $data['rules_id'] = $this->rules_id ?? '';
         $data['user_info'] = $this->user_info ?? null;
         $data['device'] = $this->device ?? null;
+        $data['features'] = $this->features ?? [];
 
         return (object) $data;
     }
@@ -168,18 +182,23 @@ class UsersModel extends Authenticatable implements JWTSubject
     }
 
     public function findOne($cond){
-
+       
         switch ($cond) {
             case 'user_id':
-                $this->user = UsersModel::where('user_id', $this->user_id)->get();
-                break;
+                
+                $data = DB::table($this->table)->where('user_id', $this->user_id)->get()->first();
+                
+                $this->set_data($data);
+                return $this;
             default:
-                $this->user = UsersModel::where('user_id', $this->user_id)->get();
-                break;
+                $data = DB::table($this->table)->where($cond, $this[$cond])->get()->first();
+               
+                $this->set_data($data);
+
+                return $this;
+               
         }
 
-        
-        return $this;
     }
     public function findAll(){
         $this->user = UsersModel::all();
@@ -187,52 +206,51 @@ class UsersModel extends Authenticatable implements JWTSubject
     }
 
     public function rules(){
-       $rules = new RulesModel;
-   
-       foreach ($this->user as $key => $value) {
-           
-            $rulesData = $rules->findOne(['rules_id' => $value->attributes['rules_id']]);
-            
-            if($rulesData){
-                $value->attributes['rules'] = $rulesData;
-            }
-
-            
-       }
-       return $this;
+        
+        $rules = new RulesModel;
+       
+        $rulesData = $rules->findOne(['rules_id' => $this->rules_id]);
+        
+        if($rulesData){
+            $this->rules = $rulesData;
+        }
+        return $this;
     }
 
     public function user_info()
     {
        
-        foreach ($this->user as $key => $value) {
-            
-            $user_info = UserInfoModel::where('user_id', $value->attributes['user_id'])->get()->first();
-            if($user_info){
-                $value->attributes['user_info'] = $user_info;
-            }
-            
-       }
+        $user_info = UserInfoModel::where('user_id', $this->user_id)->get()->first();
+        if($user_info){
+            $this->user_info = $user_info;
+        }
 
       
        return $this;
     }
     public function device()
     {
-       
-        foreach ($this->user as $key => $value) {
-            $device = UserDevice::where('user_id', $value->attributes['user_id'])->get()->first();
-            if($device){
-                $value->attributes['device'] = $device;
-            }
-            
-       }
-
-      
+        $device = UserDevice::where('user_id', $this->user_id)->get()->first();
+        
+        if($device)
+            $this->device = $device;
+        
        return $this;
     }
 
+    public function features()
+    {
+        $feat = new StakeholderFeat(['user_id' => $this->user_id]);
+
+        $features = $feat->findAll();
+        
+        if($features)
+            $this->features = $features;
+        return $this;
+    }
+
     public function chain($data = []){
+        
         foreach ($data as $key => $value) {
             $this->$value();
         }
@@ -240,17 +258,18 @@ class UsersModel extends Authenticatable implements JWTSubject
         return $this;
     }
 
-    public function show()
+    public function show($attributes = ['rules','user_info', 'device'])
     {
         $data = [];
-
+        
         if($this->user_id != null){
             
-            $user = $this->findOne('rules_id')->chain(['rules','user_info', 'device']);
-            $this->set_data($user->user[0]->attributes);
+            $user = $this->findOne('user_id')->chain($attributes);
+           
+            $this->set_data($user->user[0]);
             $data = $this->get_attribute();
         }else{
-            $users = $this->findAll()->chain(['rules','user_info', 'device']);
+            $users = $this->findAll()->chain($attributes);
             foreach ($users->user as $key => $value) {
                 $this->set_data($value->attributes);
                 array_push($data, $this->get_attribute());

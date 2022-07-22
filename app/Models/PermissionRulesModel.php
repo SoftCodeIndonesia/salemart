@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Support\Facades\DB;
+use App\Models\PermissionHolderModel;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\UserHolderPermissionModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class PermissionRulesModel extends Model
@@ -35,6 +37,12 @@ class PermissionRulesModel extends Model
         if(key_exists('created_by', $data))
             $this->created_by = $data->created_by;
         
+    }
+
+
+    public function permissionRules()
+    {
+        return $this->belongsTo(UserHolderPermissionModel::class, 'id');
     }
 
     static function defaultData(){

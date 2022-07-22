@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Support\Facades\DB;
+use App\Models\PermissionRulesModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -20,6 +21,7 @@ class PermissionHolderModel extends Model
     protected $permission;
     protected $last_updated;
     protected $created_by;
+    
 
     public function set_data($data = []){
         
@@ -37,38 +39,45 @@ class PermissionHolderModel extends Model
         
     }
 
-    static function defaultData(){
-        $feat = DB::table('stakeholder_feature')->where('feature_name', 'feature')->get()->first();
+    public function permissionRules()
+    {
+        return $this->belongsTo(StakeholderFeat::class, 'id');
+    }
 
-        $permissionData = [
-            [
-                'feature_id' => $feat->feature_id,
-                'permission' => 'create feature',
-                'last_updated' => time(),
-                'created_by' => 'system'
-            ],
-            [
-                'feature_id' => $feat->feature_id,
-                'permission' => 'read feature',
-                'last_updated' => time(),
-                'created_by' => 'system'
-            ],
-            [
-                'feature_id' => $feat->feature_id,
-                'permission' => 'update feature',
-                'last_updated' => time(),
-                'created_by' => 'system'
-            ],
-            [
-                'feature_id' => $feat->feature_id,
-                'permission' => 'delete feature',
-                'last_updated' => time(),
-                'created_by' => 'system'
-            ],
-        ];
-        foreach ($permissionData as $key => $value) {
-            PermissionHolderModel::create($value);
-            
+    static function defaultData(){
+        $feat = DB::table('stakeholder_feature')->get();
+
+        foreach ($feat as $key => $value) {
+            $permissionData = [
+                [
+                    'feature_id' => $value->feature_id,
+                    'permission' => 'create ' . $value->feature_name,
+                    'last_updated' => time(),
+                    'created_by' => 'system'
+                ],
+                [
+                    'feature_id' => $value->feature_id,
+                    'permission' => 'read ' . $value->feature_name,
+                    'last_updated' => time(),
+                    'created_by' => 'system'
+                ],
+                [
+                    'feature_id' => $value->feature_id,
+                    'permission' => 'update ' . $value->feature_name,
+                    'last_updated' => time(),
+                    'created_by' => 'system'
+                ],
+                [
+                    'feature_id' => $value->feature_id,
+                    'permission' => 'delete ' . $value->feature_name,
+                    'last_updated' => time(),
+                    'created_by' => 'system'
+                ],
+            ];
+            foreach ($permissionData as $key => $value) {
+                PermissionHolderModel::create($value);
+                
+            }
         }
         
     }

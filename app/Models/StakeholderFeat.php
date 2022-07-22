@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use stdClass;
 use Illuminate\Support\Facades\DB;
+use App\Models\PermissionRulesModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -25,12 +27,24 @@ class StakeholderFeat extends Model
     protected $parent_id;
     protected $children;
     protected $creator;
+    protected $permissions;
+
+
+    protected $user_id;
+
+    public function __construct($data = []){
+        $this->set_data($data);
+    }
 
     public function set_data($data = []){
             
         $data = (object) $data;
+
+        if(key_exists('user_id', $data))
+            $this->user_id = $data->user_id;
+
         if(key_exists('feature_id', $data))
-            $this->feature_id = (string) $data->feature_id;
+            $this->feature_id = $data->feature_id;
 
         if(key_exists('feature_code', $data))
             $this->feature_code = (string) $data->feature_code;
@@ -50,10 +64,35 @@ class StakeholderFeat extends Model
             $this->last_updated =  time();
         }
         
-        if(key_exists('created_by', $data))
+        if(key_exists('created_by', $data)){
             $this->created_by = $data->created_by;
-        if(key_exists('parent_id', $data))
+
+            if($data->created_by !== 'system'){
+                $userModel = new UsersModel();
+
+                $userModel->set_data(['user_id' => $data->created_by]);
+
+                $user = $userModel->findOne('user_id')->chain(['rules']);
+                
+                $this->creator = $user;
+            }else{
+                $this->creator = new stdClass();
+            }
+
+        }
+
+        if(key_exists('parent_id', $data)){
             $this->parent_id = (int) $data->parent_id;
+
+            if($this->parent_id == 0){
+                $this->children = $this->getChildren();
+            }else{
+                $this->children = [];
+            }
+            
+        }
+
+        $this->permission = $data->permission ?? [];
 
     }
 
@@ -70,6 +109,22 @@ class StakeholderFeat extends Model
         return (object) $data;
     }
 
+    public function get_attribute(){
+        $data['feature_id'] = $this->feature_id;
+        $data['feature_code'] = $this->feature_code;
+        $data['feature_name'] = $this->feature_name;
+        $data['feature_route'] = $this->feature_route;
+        $data['feature_description'] = $this->feature_description;
+        $data['feature_icon'] = $this->feature_icon;
+        $data['last_updated'] = $this->last_updated;
+        $data['created_by'] = $this->created_by;
+        $data['parent_id'] = $this->parent_id ?? 0;
+        $data['children'] = $this->children;
+        $data['creator'] = $this->creator;
+        $data['permission'] = $this->permission;
+        return (object) $data;
+    }
+
     public function generate_key(){
 
         $featHolder = StakeholderFeat::all()->count();
@@ -79,6 +134,59 @@ class StakeholderFeat extends Model
         $key = 'FEAT/HOLDER' . str_pad($count,4,"0",STR_PAD_LEFT);
 
         $this->feature_code = $key;
+    }
+
+    public function findAll(){
+        $data = DB::table($this->table)
+            ->join('stakeholder_permission', 'stakeholder_permission.feature_id', '=', $this->table . '.feature_id')
+            ->join('stakeholder_permission_rules', 'stakeholder_permission_rules.permission_id', '=', 'stakeholder_permission.id')
+            ->join('user_holder_permission', 'user_holder_permission.permission_id', '=', 'stakeholder_permission.id')
+            ->where('user_holder_permission.user_id', $this->user_id)
+            ->where($this->table . '.parent_id', 0)
+            ->groupBy('stakeholder_feature.feature_id')
+            ->select('stakeholder_feature.*')
+            ->get()->toArray();
+        
+        $features = [];
+
+        foreach ($data as $key => $value) {
+            $value = (object) $value;
+            
+            $permission = new UserHolderPermissionModel(['user_id' => $this->user_id, 'feature_id' => $value->feature_id]);
+            $permission = $permission->checkPermission();
+
+            $value->permission = $permission;
+
+            $this->set_data($value);
+            array_push($features, $this->get_attribute());
+        }
+        return $features;
+    }
+
+    public function getChildren(){
+        $child = new StakeholderFeat();
+
+        $feat = StakeholderFeat::where('parent_id', $this->feature_id)->get()->toArray();
+       
+        $children = [];
+
+        foreach ($feat as $key => $value) {
+            $value = (object) $value;
+            $permission = new UserHolderPermissionModel(['user_id' => $this->user_id, 'feature_id' => $value->feature_id]);
+
+            $isGranted = $permission->checkPermission();
+           
+            
+            if($isGranted){
+
+                $value->permission = $isGranted;
+
+                $child->set_data($value);
+                array_push($children, $child->get_attribute());
+            }
+        }
+
+        return $children;
     }
 
     public function create(){
@@ -93,6 +201,11 @@ class StakeholderFeat extends Model
     public function findOneByFeatId(){
         $data = FeatureModel::where('feature_id', $this->feature_id)->first();
         $this->set_data($data);
+    }
+
+    public function feature()
+    {
+        return $this->belongsTo(PermissionRulesModel::class, 'feature_id');
     }
 
 }

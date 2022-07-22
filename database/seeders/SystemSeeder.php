@@ -7,6 +7,7 @@ use Database\Seeders\RulesSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\StakeholderFeatSheed;
 use Database\Seeders\PermissionRulesSeeder;
+use Database\Seeders\UserHolderPermissionSeed;
 
 class SystemSeeder extends Seeder
 {
@@ -22,6 +23,7 @@ class SystemSeeder extends Seeder
        $holderFeat = new StakeholderFeatSheed();
        $permissionFeat = new PermissionSeeder();
        $permissionRules = new PermissionRulesSeeder();
+       $holderPeermission = new UserHolderPermissionSeed();
 
        $rulesSheed->run();
        $userSheed->run();

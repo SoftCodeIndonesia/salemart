@@ -134,10 +134,11 @@ class AuthController extends Controller
 
         $userModel = new UsersModel;
         $userModel->set_data(auth()->user()->attributes());
+       
+        $users = $userModel->findOne('user_id')->chain(['rules','user_info', 'device', 'features']);
 
-        $users = (array) $userModel->show();
-
-        
+        $users = (array) $users->get_attribute();
+       
         $userInfo = UserInfoModel::where('user_id', $users['user_id'])->get()->first();
 
         if($userInfo){
@@ -163,7 +164,7 @@ class AuthController extends Controller
         $deviceModel->set_data(['user_id' => $users['user_id'], 'last_updated' => time()]);
         
         $deviceData = UserDevice::where('user_id', $users['user_id'])->get()->first();
-        
+       
         if($deviceData){
             $deviceData->user_id = $users['user_id'];
             $deviceData->lang = $deviceModel->lang ?? $deviceData['lang'];
@@ -176,14 +177,10 @@ class AuthController extends Controller
 
             $deviceData->save();
         }else{
-           
             $deviceModel->generate_id();
-            $deviceModel->save();
+            $deviceModel->create();
         }
 
-        
-
-        $users = (array) $userModel->show();
 
         $users['token'] = $token;
 

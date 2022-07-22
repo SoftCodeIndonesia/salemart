@@ -40,4 +40,9 @@ Route::group([
     Route::post('/feature', 'FeatureController@store')->middleware('jwt.verify');
     Route::get('/feature', 'FeatureController@show')->middleware('jwt.verify');
     
+    Route::get('/holder/feat', 'HolderFeatController@show')->middleware('jwt.verify');
+
+
+    Route::post('/holder/permission_user', 'UserHolderPermissionController@store');
+    
 });

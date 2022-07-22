@@ -28,9 +28,13 @@ class Users extends Migration
             $table->string('country')->nullable();
             $table->bigInteger('is_actived')->nullable();
             $table->bigInteger('register_at')->nullable();
+
+
+            // $table->foreign('rules_id')->references('rules_id')->on('rules');
         });
 
-        // Schema::table('users', function($table) {
+        
+        // Schema::table('users', function (Blueprint $table) {
         //     $table->foreign('rules_id')->references('rules_id')->on('rules');
         // });
      

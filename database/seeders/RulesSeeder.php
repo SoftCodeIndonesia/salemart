@@ -25,7 +25,6 @@ class RulesSeeder extends Seeder
 
             DB::table('rules')->insert([
                 'rules_id' => $id,
-                'parent_id' => '',
                 'description' => 'rules for developer',
                 'name' => $value,
                 'created_at' => time(),

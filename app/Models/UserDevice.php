@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,20 +13,21 @@ class UserDevice extends Model
 
     protected $table = 'user_devices';
     protected $primaryKey = 'user_devices_id';
-    // protected $keyType = 'string';
+    protected $keyType = 'string';
     public $timestamps = false;
 
     protected $nullable = ['lang','fcm_token'];
+    protected $fillable = ['user_devices_id','user_id','last_updated'];
 
-    // protected $user_devices_id;
-    // protected $user_id;
-    // protected $lang;
-    // protected $platform;
-    // protected $version;
-    // protected $name;
-    // protected $identifier;
-    // protected $fcm_token;
-    // protected $last_updated;
+    protected $user_devices_id;
+    protected $user_id;
+    protected $lang;
+    protected $platform;
+    protected $version;
+    protected $name;
+    protected $identifier;
+    protected $fcm_token;
+    protected $last_updated;
 
     public function set_data($data = [])
     {
@@ -54,12 +56,12 @@ class UserDevice extends Model
     {
         $data['user_devices_id'] = $this->user_devices_id;
         $data['user_id'] = $this->user_id;
-        $data['lang'] = $this->lang;
-        $data['platform'] = $this->platform;
-        $data['version'] = (int) $this->version;
-        $data['name'] = $this->name;
-        $data['identifier'] = $this->identifier;
-        $data['fcm_token'] = $this->fcm_token;
+        $data['lang'] = $this->lang ?? '';
+        $data['platform'] = $this->platform ?? '';
+        $data['version'] = (int) $this->version ?? 0;
+        $data['name'] = $this->name ?? '';
+        $data['identifier'] = $this->identifier ?? '';
+        $data['fcm_token'] = $this->fcm_token ?? '';
         $data['last_updated'] = (int) $this->last_updated;
 
         return (object) $data;
@@ -74,6 +76,11 @@ class UserDevice extends Model
         $id = Hash::make($key);
         
         $data['user_devices_id'] = $id;
-        return $this->set_data($data);
+        $this->set_data($data);
+    }
+
+    public function create()
+    {
+        DB::table($this->table)->insert((array) $this->get_attribute());
     }
 }
