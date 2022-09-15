@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\StakeholderFeat;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class StakeholderFeatSheed extends Seeder
 {
@@ -43,10 +44,17 @@ class StakeholderFeatSheed extends Seeder
         $data[2]['parent_id'] = 1;
 
         foreach ($data as $key => $value) {
-            $stakeholderFeatModel->set_data($value);
-            $stakeholderFeatModel->create();
-        }
+            $featHolder = StakeholderFeat::all()->count();
 
-       
+            $count = ($featHolder + 1);
+
+            $key = 'FEAT/HOLDER' . str_pad($count, 4, "0", STR_PAD_LEFT);
+            $value['feature_code'] =  $key;
+            // var_dump($value);
+            DB::table('stakeholder_feature')->insert($value);
+            // $stakeholderFeatModel->set_data($value);
+            // $stakeholderFeatModel->create();
+            // StakeholderFeat::create($value);
+        }
     }
 }

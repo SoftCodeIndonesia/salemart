@@ -13,9 +13,10 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
 Route::group([
     'namespace' => 'App\Http\Controllers\api'
-], function(){
+], function () {
     Route::post('rules', 'RulesController@store')->middleware('jwt.verify');
     Route::get('rules', 'RulesController@show')->middleware('jwt.verify');
 
@@ -39,10 +40,11 @@ Route::group([
 
     Route::post('/feature', 'FeatureController@store')->middleware('jwt.verify');
     Route::get('/feature', 'FeatureController@show')->middleware('jwt.verify');
-    
+
     Route::get('/holder/feat', 'HolderFeatController@show')->middleware('jwt.verify');
+    Route::get('/holder/feat/detail', 'HolderFeatController@detail')->middleware('jwt.verify');
+    Route::get('/holder/myfeat', 'HolderFeatController@holderFeat')->middleware('jwt.verify');
 
 
     Route::post('/holder/permission_user', 'UserHolderPermissionController@store');
-    
 });

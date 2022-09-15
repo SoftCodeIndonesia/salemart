@@ -31,13 +31,11 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        
     }
 
-    
+
     public function index()
     {
-       
     }
 
     /**
@@ -49,7 +47,7 @@ class AuthController extends Controller
     public function store(UserRegister $request)
     {
 
-      
+
         $authModel = new AuthModel;
         $userModel = new UsersModel;
         $userVerificationMail = new UserVerification;
@@ -60,33 +58,34 @@ class AuthController extends Controller
 
         $authModel->set_data($request->all());
         $authModel->set_data(['email_verify_id' => $code, 'email_verify_id_expired' => $time]);
-        
+
 
         $user = $authModel->create();
 
-        
+
         $userVerificationMail->username = $user->username;
         $userVerificationMail->code = $code;
 
         Mail::to($user->email)->send($userVerificationMail);
 
-        return response_ok('Waiting for verification',$user);
+        return response_ok('Waiting for verification', $user);
     }
 
-    public function verification(Verification $request){
+    public function verification(Verification $request)
+    {
         $userModel = new UsersModel;
 
         $userModel->set_data($request->all());
 
         $user = $userModel->show();
-        
+
         $param = $request->all();
 
-        if($user->email_verify_id_expired < time()){
+        if ($user->email_verify_id_expired < time()) {
             return bad_request('code has expired!!');
         }
 
-        if($user->email_verify_id == $param['code']){
+        if ($user->email_verify_id == $param['code']) {
 
             $userVerfication = UsersModel::where('user_id', $user->user_id)->get()->first();
 
@@ -98,16 +97,14 @@ class AuthController extends Controller
 
             $user = $userModel->show();
 
-            return response_ok($user,'successfully verification');
-        }else{
+            return response_ok($user, 'successfully verification');
+        } else {
             return bad_request('invalid code!!');
         }
-
-        
     }
 
     public function login(LoginRequest $request)
-    {   
+    {
 
         $authModel = new AuthModel;
 
@@ -118,36 +115,35 @@ class AuthController extends Controller
         $authModel->set_data($credentials);
 
         $rulesModel = new RulesModel;
-       
+
 
         // $rules = $rulesModel->findOne(['rules_id' => $credentials['rules_id']]);
 
         try {
-            if (! $token = auth()->attempt($credentials)) {
+            if (!$token = auth()->attempt($credentials)) {
                 return bad_request('invalid credentials!');
             }
         } catch (JWTException $e) {
             return bad_request('could not create token!');
         }
 
-      
 
         $userModel = new UsersModel;
         $userModel->set_data(auth()->user()->attributes());
-       
-        $users = $userModel->findOne('user_id')->chain(['rules','user_info', 'device', 'features']);
+
+        $users = $userModel->findOne('user_id')->chain(['rules', 'user_info', 'device', 'features']);
 
         $users = (array) $users->get_attribute();
-       
+
         $userInfo = UserInfoModel::where('user_id', $users['user_id'])->get()->first();
 
-        if($userInfo){
+        if ($userInfo) {
             $userInfo->user_id = $users['user_id'];
             $userInfo->is_actived = 1;
             $userInfo->active_at = time();
             $userInfo->last_actived = $userInfo['last_actived'];
             $userInfo->save();
-        }else{
+        } else {
             $info = new UserInfoModel;
             $info->generate_id();
             $info->user_info_id = $info->get_attribute()->user_info_id;
@@ -157,15 +153,15 @@ class AuthController extends Controller
             $info->last_actived = time();
             $info->save();
         }
-        
+
         $deviceModel = new UserDevice;
 
         $deviceModel->set_data($request->all());
         $deviceModel->set_data(['user_id' => $users['user_id'], 'last_updated' => time()]);
-        
+
         $deviceData = UserDevice::where('user_id', $users['user_id'])->get()->first();
-       
-        if($deviceData){
+
+        if ($deviceData) {
             $deviceData->user_id = $users['user_id'];
             $deviceData->lang = $deviceModel->lang ?? $deviceData['lang'];
             $deviceData->platform = $deviceModel->platform ?? $deviceData->platform;
@@ -176,7 +172,7 @@ class AuthController extends Controller
             $deviceData->last_updated = time();
 
             $deviceData->save();
-        }else{
+        } else {
             $deviceModel->generate_id();
             $deviceModel->create();
         }
@@ -192,7 +188,7 @@ class AuthController extends Controller
         $users = auth_data()->attributes();
 
         $userInfo = UserInfoModel::where('user_id', $users['user_id'])->get()->first();
-        
+
         $last_actived = $userInfo->active_at;
 
         $userInfo->is_actived = 0;
@@ -246,17 +242,16 @@ class AuthController extends Controller
         return Auth::guard();
     }
 
-    public function auth_rules($rules){
+    public function auth_rules($rules)
+    {
         switch ($rules->name) {
             case 'owner':
                 return auth('owner-api');
                 break;
-            
+
             default:
-                 return auth('owner-api');
+                return auth('owner-api');
                 break;
         }
     }
-
-
 }

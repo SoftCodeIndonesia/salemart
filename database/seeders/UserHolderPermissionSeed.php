@@ -14,7 +14,9 @@ class UserHolderPermissionSeed extends Seeder
      */
     public function run()
     {
-        UserHolderPermissionModel::truncate();
-        UserHolderPermissionModel::defaultData('developer');
+        $permission = new UserHolderPermissionModel([]);
+        $permission->truncate();
+        $permission->truncate();
+        $permission->defaultData('developer');
     }
 }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\UserHolderPermissionModel;
+use App\Http\Requests\UserHolderPermissionRequest;
+use Illuminate\Support\Facades\Redis;
 
 class UserHolderPermissionController extends Controller
 {
@@ -36,7 +38,25 @@ class UserHolderPermissionController extends Controller
      */
     public function store(Request $request)
     {
-        UserHolderPermissionModel::defaultData('developer');
+        $userHolderPermissionModel = new UserHolderPermissionModel([]);
+
+        foreach (json_decode($request->get('uncheck')) as $key => $value) {
+            $userHolderPermissionModel->set_data(['permission_id' => $value]);
+            $userHolderPermissionModel->deleteById();
+        }
+
+        $result = [];
+        foreach (json_decode($request->get('permissions')) as $key => $value) {
+            $data['permission_id'] = $value;
+            $data['user_id'] = $request->get('user_id');
+            $data['created_by'] = auth()->user()->user_id();
+            $data['last_updated'] = $request->get('created_at');
+
+            $userHolderPermissionModel->set_data($data);
+            $permission = $userHolderPermissionModel->create();
+            array_push($result, (array) $permission);
+        }
+        return response_ok($result, 'Success inserting permission!');
     }
 
     /**

@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class LoginRequest extends FormRequest
+class UserHolderPermissionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -30,9 +30,10 @@ class LoginRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|email',
-            // 'rules_id' => 'required',
-            'password' => 'required|min:8',
+            'permissions' => 'required',
+            'user_id' => 'required',
+            'created_at' => 'required',
+            'updated_by' => 'required',
         ];
     }
 }

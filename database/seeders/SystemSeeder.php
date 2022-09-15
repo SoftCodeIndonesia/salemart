@@ -18,17 +18,18 @@ class SystemSeeder extends Seeder
      */
     public function run()
     {
-       $rulesSheed = new RulesSeeder();
-       $userSheed = new userSeeder();
-       $holderFeat = new StakeholderFeatSheed();
-       $permissionFeat = new PermissionSeeder();
-       $permissionRules = new PermissionRulesSeeder();
-       $holderPeermission = new UserHolderPermissionSeed();
+        $rulesSheed = new RulesSeeder();
+        $userSheed = new userSeeder();
+        $holderFeat = new StakeholderFeatSheed();
+        $permissionFeat = new PermissionSeeder();
+        $permissionRules = new PermissionRulesSeeder();
+        $holderPeermission = new UserHolderPermissionSeed();
 
-       $rulesSheed->run();
-       $userSheed->run();
-       $holderFeat->run();
-       $permissionFeat->run();
-       $permissionRules->run();
+        $rulesSheed->run();
+        $userSheed->run();
+        $holderFeat->run();
+        $permissionFeat->run();
+        $permissionRules->run();
+        $holderPeermission->run();
     }
 }
